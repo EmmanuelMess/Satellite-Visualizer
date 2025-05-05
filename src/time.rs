@@ -5,6 +5,12 @@ pub(crate) fn get_gpst_seconds_of_week(time: Epoch) -> u64 {
     nanoseconds / 1_000_000_000
 }
 
+pub(crate) fn get_gpst_week(time: Epoch) -> u64 {
+    let (week, _) = time.to_time_scale(TimeScale::GPST).to_time_of_week();
+    week.into()
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;

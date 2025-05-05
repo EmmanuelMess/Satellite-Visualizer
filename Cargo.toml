@@ -8,3 +8,4 @@ raylib = { version = "5.5" }
 hifitime = "4.0.2"
 assert_float_eq = "1.1.4"
 regex = "1.11.1"
+arboard = { version = "3.5.0" , features = ["wayland-data-control"] }

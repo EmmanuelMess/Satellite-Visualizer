@@ -2,10 +2,12 @@ mod satellite;
 mod earth_position;
 mod ui;
 mod time;
+mod string_format;
 
 use std::cmp::min;
 use std::collections::HashMap;
 use std::f32::consts::TAU;
+use arboard::Clipboard;
 use hifitime::{Duration, Epoch};
 use hifitime::TimeScale::GPST;
 use raylib::prelude::*;
@@ -99,7 +101,7 @@ fn main() {
         ("reference_position_llh",           grid_rectangle(reference_text, 1.0, 4.0, 64.0, 3.0)),
     ]);
 
-    // UI state
+    // Sidebar state
     let sidebar_box = grid_anchor(115.0, 0.0);
     let sidebar_content = grid_anchor_from(sidebar_box, 5.0, 2.0);
     let reference = grid_anchor_from(sidebar_content, 0.0, 1.0);
@@ -172,6 +174,13 @@ fn main() {
         ("rate_of_right_ascension_slider",     grid_rectangle(satellite, 0.0, 139.0, 24.0, 9.0)),
         ("rate_of_inclination_slider",         grid_rectangle(satellite, 0.0, 148.0, 24.0, 9.0)),
     ]);
+
+    // Copy rinex UI state
+    let mut update_clipboard= false;
+
+    let copy_button_height = 3.0;
+    let copy_rinex_anchor = grid_anchor(0.0, grid_value(height.as_f32()) - copy_button_height);
+    let copy_rinex_rectangle = grid_rectangle(copy_rinex_anchor, 0.0, 0.0, 10.0, copy_button_height);
 
     rl.set_target_fps(60);
 
@@ -463,6 +472,21 @@ fn main() {
                                       format!("{:+e} rad/s", rate_of_inclination).as_str(),
                                       &mut rate_of_inclination, -1.0, 1.0, true);
                 });
+            }
+
+            if d.gui_button(copy_rinex_rectangle, "Copy RINEX") { update_clipboard = true; };
+        }
+
+        {
+            if update_clipboard {
+                let clipboard_result =
+                    Clipboard::new().and_then(|mut clipboard| {
+                        clipboard.set_text(satellite.to_rinex())
+                    });
+
+                if let Err(error) = clipboard_result {
+                    println!("Error copying to clipboard: {}", error);
+                }
             }
         }
     }

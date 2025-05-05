@@ -1,7 +1,10 @@
+use std::fmt::Debug;
 use std::num::ParseFloatError;
 use hifitime::{Duration, Epoch};
+use hifitime::TimeScale::GPST;
 use regex::Regex;
-use crate::time::get_gpst_seconds_of_week;
+use crate::string_format::fmt_f64;
+use crate::time::{get_gpst_seconds_of_week, get_gpst_week};
 
 pub(crate) struct Satellite {
     epoch: Epoch,
@@ -28,7 +31,7 @@ impl Satellite {
                               eccentricity: f64, argument_of_perigee: f64, mean_anomaly: f64,
                               sqrt_semi_major_axis: f64) -> Satellite {
         Satellite {
-            epoch,
+            epoch: epoch.to_time_scale(GPST),
             inclination,
             longitude_of_ascending_node,
             eccentricity,
@@ -55,23 +58,23 @@ impl Satellite {
                              correction_inclination_cos: f64, correction_inclination_sin: f64,
                              rate_of_inclination: f64, rate_of_right_ascension: f64) -> Satellite {
         Satellite {
-            epoch, inclination, longitude_of_ascending_node, eccentricity, argument_of_perigee,
-            mean_anomaly, sqrt_semi_major_axis, delta_mean_motion, correction_latitude_cos,
-            correction_latitude_sin, correction_radius_cos, correction_radius_sin,
-            correction_inclination_cos, correction_inclination_sin, rate_of_inclination,
-            rate_of_right_ascension
+            epoch: epoch.to_time_scale(GPST), inclination, longitude_of_ascending_node, 
+            eccentricity, argument_of_perigee, mean_anomaly, sqrt_semi_major_axis, 
+            delta_mean_motion, correction_latitude_cos, correction_latitude_sin, 
+            correction_radius_cos, correction_radius_sin, correction_inclination_cos,
+            correction_inclination_sin, rate_of_inclination, rate_of_right_ascension
         }
     }
 
     pub(crate) fn from_rinex(rinex: &str) -> Satellite {
-        let regex: Regex = Regex::new(r#"(?m)^G(?<sv>\d{2}) (?<year>\d{4}) (?<month>\d{2}) (?<day>\d{2}) (?<hour>\d{2}) (?<minute>\d{2}) (?<second>\d{2})( ?(?<clock_bias>-?\d.\d{12}E-?\+?\d{2}))( ?(?<clock_drift>-?\d.\d{12}E-?\+?\d{2}))( ?(?<clock_drift_rate>-?\d.\d{12}E-?\+?\d{2}))( ?(?<iode>-?\d.\d{12}E-?\+?\d{2}))( ?(?<crs>-?\d.\d{12}E-?\+?\d{2}))( ?(?<delta_n>-?\d.\d{12}E-?\+?\d{2}))( ?(?<m0>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cuc>-?\d.\d{12}E-?\+?\d{2}))( ?(?<e>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cus>-?\d.\d{12}E-?\+?\d{2}))( ?(?<sqrt_a>-?\d.\d{12}E-?\+?\d{2}))( ?(?<toe>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cic>-?\d.\d{12}E-?\+?\d{2}))( ?(?<omega0>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cis>-?\d.\d{12}E-?\+?\d{2}))( ?(?<i0>-?\d.\d{12}E-?\+?\d{2}))( ?(?<crc>-?\d.\d{12}E-?\+?\d{2}))( ?(?<omega>-?\d.\d{12}E-?\+?\d{2}))( ?(?<omega_dot>-?\d.\d{12}E-?\+?\d{2}))( ?(?<idot>-?\d.\d{12}E-?\+?\d{2}))( ?(?<codes_l2>-?\d.\d{12}E-?\+?\d{2}))( ?(?<gps_week>-?\d.\d{12}E-?\+?\d{2}))( ?(?<l2_data>-?\d.\d{12}E-?\+?\d{2}))( ?(?<accuracy>-?\d.\d{12}E-?\+?\d{2}))( ?(?<health>-?\d.\d{12}E-?\+?\d{2}))( ?(?<tgd>-?\d.\d{12}E-?\+?\d{2}))( ?(?<iodc>-?\d.\d{12}E-?\+?\d{2}))( ?(?<transmission_time>-?\d.\d{12}E-?\+?\d{2}))( ?(?<fit_interval>-?\d.\d{12}E-?\+?\d{2}))"#).unwrap();
+        let regex: Regex = Regex::new(r#"(?m)^G(?<sv>\d{2}) (?<year>\d{4}) (?<month>\d{2}) (?<day>\d{2}) (?<hour>\d{2}) (?<minute>\d{2}) (?<second>\d{2})( ?(?<clock_bias>-?\d.\d{12}E-?\+?\d{2}))( ?(?<clock_drift>-?\d.\d{12}E-?\+?\d{2}))( ?(?<clock_drift_rate>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<iode>-?\d.\d{12}E-?\+?\d{2}))( ?(?<crs>-?\d.\d{12}E-?\+?\d{2}))( ?(?<delta_n>-?\d.\d{12}E-?\+?\d{2}))( ?(?<m0>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<cuc>-?\d.\d{12}E-?\+?\d{2}))( ?(?<e>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cus>-?\d.\d{12}E-?\+?\d{2}))( ?(?<sqrt_a>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<toe>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cic>-?\d.\d{12}E-?\+?\d{2}))( ?(?<omega0>-?\d.\d{12}E-?\+?\d{2}))( ?(?<cis>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<i0>-?\d.\d{12}E-?\+?\d{2}))( ?(?<crc>-?\d.\d{12}E-?\+?\d{2}))( ?(?<omega>-?\d.\d{12}E-?\+?\d{2}))( ?(?<omega_dot>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<idot>-?\d.\d{12}E-?\+?\d{2}))( ?(?<codes_l2>-?\d.\d{12}E-?\+?\d{2}))( ?(?<gps_week>-?\d.\d{12}E-?\+?\d{2}))( ?(?<l2_data>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<accuracy>-?\d.\d{12}E-?\+?\d{2}))( ?(?<health>-?\d.\d{12}E-?\+?\d{2}))( ?(?<tgd>-?\d.\d{12}E-?\+?\d{2}))( ?(?<iodc>-?\d.\d{12}E-?\+?\d{2}))([\n ]*)( ?(?<transmission_time>-?\d.\d{12}E-?\+?\d{2}))( ?(?<fit_interval>-?\d.\d{12}E-?\+?\d{2}))"#).unwrap();
 
         let captures = &regex.captures(rinex).unwrap();
 
         
         let seconds_of_week = captures.name("toe").map(|x| { x.as_str().parse::<f64>().unwrap() }).unwrap();
         let week = captures.name("gps_week").map(|x| { x.as_str().parse::<f64>().unwrap() }).unwrap();
-        let epoch = Epoch::from_gpst_seconds(seconds_of_week + week * 7.0 * 24.0 * 60.0 * 60.0);
+        let epoch = Epoch::from_gpst_seconds(seconds_of_week + week * 7.0 * 24.0 * 60.0 * 60.0).to_time_scale(GPST);
         let correction_radius_sin: f64 = captures.name("crs").map(|x| { x.as_str().parse::<f64>().unwrap() }).unwrap();
         let delta_mean_motion: f64 = captures.name("delta_n").map(|x| { x.as_str().parse::<f64>().unwrap() }).unwrap();
         let mean_anomaly: f64 = captures.name("m0").map(|x| { x.as_str().parse::<f64>().unwrap() }).unwrap();
@@ -106,6 +109,54 @@ impl Satellite {
             rate_of_inclination,
             rate_of_right_ascension,
         }
+    }
+    
+    pub(crate) fn to_rinex(self) -> String {
+        let (year, month, day, hour, minute, second, _) = self.epoch.to_gregorian_tai();
+        let seconds_of_week = get_gpst_seconds_of_week(self.epoch);
+        let week = get_gpst_week(self.epoch);
+        let satellite_accuracy = 2.0; // URA index see section 20.3.3.3.1 of IS-GPS-200M
+        
+        format!("\
+G00 {year:04} {month:02} {day:02} {hour:02} {minute:02} {second:02}{}{}{}
+    {}{}{}{}
+    {}{}{}{}
+    {}{}{}{}
+    {}{}{}{}
+    {}{}{}{}
+    {}{}{}{}
+    {}{}\
+            ",
+            fmt_f64(0.0,  19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2), // TODO
+            fmt_f64(self.correction_radius_sin, 19, 12, 2),
+            fmt_f64(self.delta_mean_motion, 19, 12, 2),
+            fmt_f64(self.mean_anomaly, 19, 12, 2),
+            fmt_f64(self.correction_latitude_cos, 19, 12, 2),
+            fmt_f64(self.eccentricity, 19, 12, 2),
+            fmt_f64(self.correction_latitude_sin, 19, 12, 2),
+            fmt_f64(self.sqrt_semi_major_axis, 19, 12, 2),
+            fmt_f64(seconds_of_week as f64, 19, 12, 2),
+            fmt_f64(self.correction_inclination_cos, 19, 12, 2),
+            fmt_f64(self.longitude_of_ascending_node, 19, 12, 2),
+            fmt_f64(self.correction_inclination_sin, 19, 12, 2),
+            fmt_f64(self.inclination, 19, 12, 2),
+            fmt_f64(self.correction_radius_cos, 19, 12, 2),
+            fmt_f64(self.argument_of_perigee, 19, 12, 2),
+            fmt_f64(self.rate_of_right_ascension, 19, 12, 2),
+            fmt_f64(self.rate_of_inclination, 19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2),
+            fmt_f64(week  as f64, 19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2),
+            fmt_f64(2.0, 19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2),
+            fmt_f64(0.0, 19, 12, 2), // TODO
+            fmt_f64(0.0, 19, 12, 2), // TODO
+            fmt_f64(0.0, 19, 12, 2), // TODO
+            fmt_f64(4.0, 19, 12, 2),
+        )
     }
 
     ///
@@ -260,14 +311,14 @@ mod tests {
     #[test]
     fn test_rinex() {
         let rinex_line = "\
-            G06 2025 04 09 23 59 44-2.959421835840E-04-2.148681232939E-11 0.000000000000E+00\
-                 5.000000000000E+00-9.875000000000E+00 3.730869691412E-09-1.899624399301E+00\
-                -5.550682544708E-07 3.463134868070E-03 1.232884824276E-05 5.153554180145E+03\
-                 3.455840000000E+05-9.499490261078E-08 2.686281956689E+00-3.539025783539E-08\
-                 9.890951254507E-01 1.600000000000E+02-6.486031939322E-01-7.595316375414E-09\
-                -1.135761594744E-10 1.000000000000E+00 2.361000000000E+03 0.000000000000E+00\
-                 2.000000000000E+00 0.000000000000E+00 3.725290298462E-09 5.000000000000E+00\
-                 3.398820000000E+05 4.000000000000E+00\
+G06 2025 04 09 23 59 44-2.959421835840E-04-2.148681232939E-11 0.000000000000E+00
+     5.000000000000E+00-9.875000000000E+00 3.730869691412E-09-1.899624399301E+00
+    -5.550682544708E-07 3.463134868070E-03 1.232884824276E-05 5.153554180145E+03
+     3.455840000000E+05-9.499490261078E-08 2.686281956689E+00-3.539025783539E-08
+     9.890951254507E-01 1.600000000000E+02-6.486031939322E-01-7.595316375414E-09
+    -1.135761594744E-10 1.000000000000E+00 2.361000000000E+03 0.000000000000E+00
+     2.000000000000E+00 0.000000000000E+00 3.725290298462E-09 5.000000000000E+00
+     3.398820000000E+05 4.000000000000E+00\
         ";
         let satellite = Satellite::from_rinex(rinex_line);
 
@@ -324,14 +375,14 @@ mod tests {
         
         // 2025 04 09 23 59 44 GPS
         let satellite = Satellite::from_rinex("\
-            G06 2025 04 09 23 59 44-2.959421835840E-04-2.148681232939E-11 0.000000000000E+00\
-                 5.000000000000E+00-9.875000000000E+00 3.730869691412E-09-1.899624399301E+00\
-                -5.550682544708E-07 3.463134868070E-03 1.232884824276E-05 5.153554180145E+03\
-                 3.455840000000E+05-9.499490261078E-08 2.686281956689E+00-3.539025783539E-08\
-                 9.890951254507E-01 1.600000000000E+02-6.486031939322E-01-7.595316375414E-09\
-                -1.135761594744E-10 1.000000000000E+00 2.361000000000E+03 0.000000000000E+00\
-                 2.000000000000E+00 0.000000000000E+00 3.725290298462E-09 5.000000000000E+00\
-                 3.398820000000E+05 4.000000000000E+00\
+G06 2025 04 09 23 59 44-2.959421835840E-04-2.148681232939E-11 0.000000000000E+00
+     5.000000000000E+00-9.875000000000E+00 3.730869691412E-09-1.899624399301E+00
+    -5.550682544708E-07 3.463134868070E-03 1.232884824276E-05 5.153554180145E+03
+     3.455840000000E+05-9.499490261078E-08 2.686281956689E+00-3.539025783539E-08
+     9.890951254507E-01 1.600000000000E+02-6.486031939322E-01-7.595316375414E-09
+    -1.135761594744E-10 1.000000000000E+00 2.361000000000E+03 0.000000000000E+00
+     2.000000000000E+00 0.000000000000E+00 3.725290298462E-09 5.000000000000E+00
+     3.398820000000E+05 4.000000000000E+00\
         ");
         // 2025  4 10  0  0  0.00000000 GPS
         let calculated_position_time = Epoch::from_gpst_seconds(1428278400.0);
