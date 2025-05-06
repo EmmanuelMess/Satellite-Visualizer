@@ -75,3 +75,7 @@ pub(crate) fn grid_rectangle(anchor: Vector2, x: f32, y: f32, w: f32, h: f32) ->
         h * UI_GRID_SIZE
     )
 }
+
+pub(crate) fn create_vertical_layout() {
+    
+}

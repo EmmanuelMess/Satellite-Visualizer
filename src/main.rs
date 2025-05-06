@@ -110,28 +110,30 @@ fn main() {
     let mut sidebar_scroll = Vector2::default();
     let mut sidebar_visible = Rectangle::default();
     let mut vb1_edit = false;  let mut year_value: i32 = 2025;
-    let mut vb2_edit = false;  let mut month_value: i32 = 4;
-    let mut vb3_edit = false;  let mut day_value: i32 = 9;
-    let mut vb4_edit = false;  let mut hour_value: i32 = 23;
-    let mut vb5_edit = false;  let mut minutes_value: i32 = 59;
-    let mut vb6_edit = false;  let mut seconds_value: i32 = 42;
+    let mut vb2_edit = false;  let mut month_value: i32 = 5;
+    let mut vb3_edit = false;  let mut day_value: i32 = 1;
+    let mut vb4_edit = false;  let mut hour_value: i32 = 9;
+    let mut vb5_edit = false;  let mut minutes_value: i32 = 0;
+    let mut vb6_edit = false;  let mut seconds_value: i32 = 0;
+
+    let mut simplified_mode = true;
 
     let mut position_along_orbit: f32 = 0.0;
-    let mut correction_radius_sin: f32 = -9.875000000000E+00;
-    let mut delta_mean_motion: f32 = 3.730869691412E-09;
+    let mut correction_radius_sin: f32 = 0.0;
+    let mut delta_mean_motion: f32 = 0.0;
     let mut mean_anomaly: f32 = -1.899624399301E+00;
-    let mut correction_latitude_cos: f32 = -5.550682544708E-07;
-    let mut eccentricity: f32 = 3.463134868070E-03;
-    let mut correction_latitude_sin: f32 = 1.232884824276E-05;
+    let mut correction_latitude_cos: f32 = 0.0;
+    let mut eccentricity: f32 = 0.0;
+    let mut correction_latitude_sin: f32 = 0.0;
     let mut sqrt_semi_major_axis: f32 = 5.153554180145E+03;
-    let mut correction_inclination_cos: f32 = 9.499490261078E-08;
-    let mut longitude_of_ascending_node: f32 = 2.686281956689E+00;
-    let mut correction_inclination_sin: f32 = -3.539025783539E-08;
+    let mut correction_inclination_cos: f32 = 0.0;
+    let mut longitude_of_ascending_node: f32 = 0.0;
+    let mut correction_inclination_sin: f32 = 0.0;
     let mut inclination: f32 = 9.890951254507E-01;
-    let mut correction_radius_cos: f32 = 1.600000000000E+02;
+    let mut correction_radius_cos: f32 = 0.0;
     let mut argument_of_perigee: f32 = -6.486031939322E-01;
-    let mut rate_of_right_ascension: f32 = -7.595316375414E-09;
-    let mut rate_of_inclination: f32 = -1.135761594744E-10;
+    let mut rate_of_right_ascension: f32 = 0.0;
+    let mut rate_of_inclination: f32 = 0.0;
 
     let mut reference_point_latitude_deg: f32 = -31.5284356;
     let mut reference_point_longitude_deg: f32 = -64.4700483;
@@ -147,32 +149,43 @@ fn main() {
         ("reference_longitude_slider", grid_rectangle(reference, 0.0, 12.0, 24.0, 9.0)),
 
         // Epoch
-        ("satellite_line",                     grid_rectangle(satellite, 0.0, 0.0, 24.0, 3.0)),
-        ("epoch_text",                         grid_rectangle(satellite, 0.0, 3.0, 24.0, 3.0)),
-        ( "2",                                 grid_rectangle(satellite, 0.0, 6.0, 6.0, 3.0)),
-        ( "3",                                 grid_rectangle(satellite, 9.0, 6.0, 6.0, 3.0)),
-        ( "4",                                 grid_rectangle(satellite, 18.0, 6.0, 6.0, 3.0)),
-        ( "5",                                 grid_rectangle(satellite, 0.0, 10.0, 6.0, 3.0)),
-        ( "6",                                 grid_rectangle(satellite, 9.0, 10.0, 6.0, 3.0)),
-        ( "7",                                 grid_rectangle(satellite, 18.0, 10.0, 6.0, 3.0)),
+        ("satellite_line",                     grid_rectangle(satellite, 0.0,   0.0, 24.0, 3.0)),
+        ("simplified_mode",                    grid_rectangle(satellite, 4.0,   3.0, 3.0, 3.0)),
+        ("epoch_text",                         grid_rectangle(satellite, 0.0,   6.0, 24.0, 3.0)),
+        ( "2",                                 grid_rectangle(satellite, 0.0,   9.0, 6.0, 3.0)),
+        ( "3",                                 grid_rectangle(satellite, 9.0,   9.0, 6.0, 3.0)),
+        ( "4",                                 grid_rectangle(satellite, 18.0,  9.0, 6.0, 3.0)),
+        ( "5",                                 grid_rectangle(satellite, 0.0,  13.0, 6.0, 3.0)),
+        ( "6",                                 grid_rectangle(satellite, 9.0,  13.0, 6.0, 3.0)),
+        ( "7",                                 grid_rectangle(satellite, 18.0, 13.0, 6.0, 3.0)),
         // Satellite position
-        ("position_slider",                    grid_rectangle(satellite, 0.0, 13.0, 24.0, 9.0)),
+        ("position_slider",                    grid_rectangle(satellite, 0.0,  16.0, 24.0, 9.0)),
+    ]);
 
-        ("correction_radius_sin_slider",       grid_rectangle(satellite, 0.0,  22.0, 24.0, 9.0)),
-        ("delta_mean_motion_slider",           grid_rectangle(satellite, 0.0,  31.0, 24.0, 9.0)),
-        ("mean_anomaly_slider",                grid_rectangle(satellite, 0.0,  40.0, 24.0, 9.0)),
-        ("correction_latitude_cos_slider",     grid_rectangle(satellite, 0.0,  49.0, 24.0, 9.0)),
-        ("eccentricity_slider",                grid_rectangle(satellite, 0.0,  58.0, 24.0, 9.0)),
-        ("correction_latitude_sin_slider",     grid_rectangle(satellite, 0.0,  67.0, 24.0, 9.0)),
-        ("sqrt_semi_major_axis_slider",        grid_rectangle(satellite, 0.0,  76.0, 24.0, 9.0)),
-        ("correction_inclination_cos_slider",  grid_rectangle(satellite, 0.0,  85.0, 24.0, 9.0)),
-        ("longitude_of_ascending_node_slider", grid_rectangle(satellite, 0.0,  94.0, 24.0, 9.0)),
-        ("correction_inclination_sin_slider",  grid_rectangle(satellite, 0.0, 103.0, 24.0, 9.0)),
-        ("inclination_slider",                 grid_rectangle(satellite, 0.0, 112.0, 24.0, 9.0)),
-        ("correction_radius_cos_slider",       grid_rectangle(satellite, 0.0, 121.0, 24.0, 9.0)),
-        ("argument_of_perigee_slider",         grid_rectangle(satellite, 0.0, 130.0, 24.0, 9.0)),
-        ("rate_of_right_ascension_slider",     grid_rectangle(satellite, 0.0, 139.0, 24.0, 9.0)),
-        ("rate_of_inclination_slider",         grid_rectangle(satellite, 0.0, 148.0, 24.0, 9.0)),
+    let simple_parameters_layout = HashMap::from([
+        ("mean_anomaly_slider",                grid_rectangle(satellite, 0.0,  25.0, 24.0, 9.0)),
+        ("sqrt_semi_major_axis_slider",        grid_rectangle(satellite, 0.0,  34.0, 24.0, 9.0)),
+        ("longitude_of_ascending_node_slider", grid_rectangle(satellite, 0.0,  43.0, 24.0, 9.0)),
+        ("inclination_slider",                 grid_rectangle(satellite, 0.0,  52.0, 24.0, 9.0)),
+        ("argument_of_perigee_slider",         grid_rectangle(satellite, 0.0,  61.0, 24.0, 9.0)),
+    ]);
+
+    let complex_parameters_layout = HashMap::from([
+        ("correction_radius_sin_slider",       grid_rectangle(satellite, 0.0,  25.0, 24.0, 9.0)),
+        ("delta_mean_motion_slider",           grid_rectangle(satellite, 0.0,  34.0, 24.0, 9.0)),
+        ("mean_anomaly_slider",                grid_rectangle(satellite, 0.0,  43.0, 24.0, 9.0)),
+        ("correction_latitude_cos_slider",     grid_rectangle(satellite, 0.0,  52.0, 24.0, 9.0)),
+        ("eccentricity_slider",                grid_rectangle(satellite, 0.0,  61.0, 24.0, 9.0)),
+        ("correction_latitude_sin_slider",     grid_rectangle(satellite, 0.0,  70.0, 24.0, 9.0)),
+        ("sqrt_semi_major_axis_slider",        grid_rectangle(satellite, 0.0,  79.0, 24.0, 9.0)),
+        ("correction_inclination_cos_slider",  grid_rectangle(satellite, 0.0,  88.0, 24.0, 9.0)),
+        ("longitude_of_ascending_node_slider", grid_rectangle(satellite, 0.0,  97.0, 24.0, 9.0)),
+        ("correction_inclination_sin_slider",  grid_rectangle(satellite, 0.0, 106.0, 24.0, 9.0)),
+        ("inclination_slider",                 grid_rectangle(satellite, 0.0, 115.0, 24.0, 9.0)),
+        ("correction_radius_cos_slider",       grid_rectangle(satellite, 0.0, 124.0, 24.0, 9.0)),
+        ("argument_of_perigee_slider",         grid_rectangle(satellite, 0.0, 133.0, 24.0, 9.0)),
+        ("rate_of_right_ascension_slider",     grid_rectangle(satellite, 0.0, 142.0, 24.0, 9.0)),
+        ("rate_of_inclination_slider",         grid_rectangle(satellite, 0.0, 151.0, 24.0, 9.0)),
     ]);
 
     // Copy rinex UI state
@@ -204,6 +217,9 @@ fn main() {
 
             camera.position = camera_position.transform_with(matrix);
         }
+
+        let parameters_layout =
+            if simplified_mode { &simple_parameters_layout } else { &complex_parameters_layout };
 
         let epoch = Epoch::from_gregorian_utc(
             year_value, month_value as u8, day_value as u8, hour_value as u8, minutes_value as u8,
@@ -383,6 +399,8 @@ fn main() {
 
                     s.gui_line(add(sidebar_layout["satellite_line"], sidebar_scroll), "Satellite");
 
+                    s.gui_check_box(add(sidebar_layout["simplified_mode"], sidebar_scroll), "Simple orbit mode", &mut simplified_mode);
+
                     s.gui_label(add(sidebar_layout["epoch_text"], sidebar_scroll), "Epoch (UTC)");
                     if s.gui_value_box(add(sidebar_layout["2"], sidebar_scroll), "Y", &mut year_value, 2000, 2050, vb1_edit) { vb1_edit = !vb1_edit; }
                     if s.gui_value_box(add(sidebar_layout["3"], sidebar_scroll), "M", &mut month_value, 1, 12, vb2_edit) { vb2_edit = !vb2_edit; }
@@ -397,80 +415,93 @@ fn main() {
                                       format!("{} hs", position_along_orbit).as_str(),
                                       &mut position_along_orbit, -2.0, 2.0, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["correction_radius_sin_slider"], sidebar_scroll),
-                                      "Correction of radius (sine) [m]",
-                                      format!("{} m", correction_radius_sin).as_str(),
-                                      &mut correction_radius_sin, -(1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    if !simplified_mode {
+                        gui_slider_helper(&mut s, add(parameters_layout["correction_radius_sin_slider"], sidebar_scroll),
+                                          "Correction of radius (sine) [m]",
+                                          format!("{} m", correction_radius_sin).as_str(),
+                                          &mut correction_radius_sin, -(1 << 10).as_f32(), (1 << 10).as_f32(), true);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["delta_mean_motion_slider"], sidebar_scroll),
-                                      "Delta mean motion [rad]",
-                                      format!("{} rad", delta_mean_motion).as_str(),
-                                      &mut delta_mean_motion, 0.0, TAU, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["mean_anomaly_slider"], sidebar_scroll),
+                        gui_slider_helper(&mut s, add(parameters_layout["delta_mean_motion_slider"], sidebar_scroll),
+                                          "Delta mean motion [rad]",
+                                          format!("{} rad", delta_mean_motion).as_str(),
+                                          &mut delta_mean_motion, 0.0, TAU, false);
+                    }
+
+                    gui_slider_helper(&mut s, add(parameters_layout["mean_anomaly_slider"], sidebar_scroll),
                                       "Mean anomaly [rad]",
                                       format!("{} rad", mean_anomaly).as_str(),
                                       &mut mean_anomaly, -TAU, TAU, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["correction_latitude_cos_slider"], sidebar_scroll),
-                                      "Correction of latitude (cosine) [rad]",
-                                      format!("{} rad", correction_latitude_cos).as_str(),
-                                      &mut correction_latitude_cos, - (1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    if !simplified_mode {
+                        gui_slider_helper(&mut s, add(parameters_layout["correction_latitude_cos_slider"], sidebar_scroll),
+                                          "Correction of latitude (cosine) [rad]",
+                                          format!("{} rad", correction_latitude_cos).as_str(),
+                                          &mut correction_latitude_cos, -(1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                        
+                        gui_slider_helper(&mut s, add(parameters_layout["eccentricity_slider"], sidebar_scroll),
+                                          "Eccentricity [1]",
+                                          format!("{}", eccentricity).as_str(),
+                                          &mut eccentricity, 0.0, 0.03, false);
+                        
+                        gui_slider_helper(&mut s, add(parameters_layout["correction_latitude_sin_slider"], sidebar_scroll),
+                                          "Correction of latitude (sine) [rad]",
+                                          format!("{} rad", correction_latitude_sin).as_str(),
+                                          &mut correction_latitude_sin, -(1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    }
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["eccentricity_slider"], sidebar_scroll),
-                                      "Eccentricity [1]",
-                                      format!("{}", eccentricity).as_str(),
-                                      &mut eccentricity, 0.0, 0.03, false);
-
-                    gui_slider_helper(&mut s, add(sidebar_layout["correction_latitude_sin_slider"], sidebar_scroll),
-                                      "Correction of latitude (sine) [rad]",
-                                      format!("{} rad", correction_latitude_sin).as_str(),
-                                      &mut correction_latitude_sin, - (1 << 10).as_f32(), (1 << 10).as_f32(), true);
-
-                    gui_slider_helper(&mut s, add(sidebar_layout["sqrt_semi_major_axis_slider"], sidebar_scroll),
+                    gui_slider_helper(&mut s, add(parameters_layout["sqrt_semi_major_axis_slider"], sidebar_scroll),
                                       "Square root of semi-major axis [m^½]",
                                       format!("{} m^½", sqrt_semi_major_axis).as_str(),
                                       &mut sqrt_semi_major_axis, 0.0, 10_000.0, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["correction_inclination_cos_slider"], sidebar_scroll),
-                                      "Correction of inclination (cosine) [rad]",
-                                      format!("{} rad", correction_inclination_cos).as_str(),
-                                      &mut correction_inclination_cos, - (1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    if !simplified_mode {
+                        gui_slider_helper(&mut s, add(parameters_layout["correction_inclination_cos_slider"], sidebar_scroll),
+                                          "Correction of inclination (cosine) [rad]",
+                                          format!("{} rad", correction_inclination_cos).as_str(),
+                                          &mut correction_inclination_cos, -(1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    }
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["longitude_of_ascending_node_slider"], sidebar_scroll),
+                    gui_slider_helper(&mut s, add(parameters_layout["longitude_of_ascending_node_slider"], sidebar_scroll),
                                       "Longitude of ascending node [rad]",
                                       format!("{} rad", longitude_of_ascending_node).as_str(),
                                       &mut longitude_of_ascending_node, 0.0, TAU, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["correction_inclination_sin_slider"], sidebar_scroll),
-                                      "Correction of inclination (sine) [rad]",
-                                      format!("{} rad", correction_inclination_sin).as_str(),
-                                      &mut correction_inclination_sin, -TAU, TAU, false);
+                    if !simplified_mode {
+                        gui_slider_helper(&mut s, add(parameters_layout["correction_inclination_sin_slider"], sidebar_scroll),
+                                          "Correction of inclination (sine) [rad]",
+                                          format!("{} rad", correction_inclination_sin).as_str(),
+                                          &mut correction_inclination_sin, -TAU, TAU, false);
+                    }
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["inclination_slider"], sidebar_scroll),
+                    gui_slider_helper(&mut s, add(parameters_layout["inclination_slider"], sidebar_scroll),
                                       "Inclination [rad]",
                                       format!("{} rad", inclination).as_str(),
                                       &mut inclination, 0.0, TAU, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["correction_radius_cos_slider"], sidebar_scroll),
-                                      "Correction of radius (cosine) [rad]",
-                                      format!("{} rad", correction_radius_cos).as_str(),
-                                      &mut correction_radius_cos, - (1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    if !simplified_mode {
+                        gui_slider_helper(&mut s, add(parameters_layout["correction_radius_cos_slider"], sidebar_scroll),
+                                          "Correction of radius (cosine) [rad]",
+                                          format!("{} rad", correction_radius_cos).as_str(),
+                                          &mut correction_radius_cos, - (1 << 10).as_f32(), (1 << 10).as_f32(), true);
+                    }
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["argument_of_perigee_slider"], sidebar_scroll),
+                    gui_slider_helper(&mut s, add(parameters_layout["argument_of_perigee_slider"], sidebar_scroll),
                                       "Argument of perigee [rad]",
                                       format!("{} rad", argument_of_perigee).as_str(),
                                       &mut argument_of_perigee, -TAU, TAU, false);
 
-                    gui_slider_helper(&mut s, add(sidebar_layout["rate_of_right_ascension_slider"], sidebar_scroll),
-                                      "Rate of right ascension [rad/s]",
-                                      format!("{:+e} rad/s", rate_of_right_ascension).as_str(),
-                                      &mut rate_of_right_ascension, -2e-6, 0.0, true);
-
-                    gui_slider_helper(&mut s, add(sidebar_layout["rate_of_inclination_slider"], sidebar_scroll),
-                                      "Rate of inclination [rad/s]",
-                                      format!("{:+e} rad/s", rate_of_inclination).as_str(),
-                                      &mut rate_of_inclination, -1.0, 1.0, true);
+                    if !simplified_mode {
+                        gui_slider_helper(&mut s, add(parameters_layout["rate_of_right_ascension_slider"], sidebar_scroll),
+                                          "Rate of right ascension [rad/s]",
+                                          format!("{:+e} rad/s", rate_of_right_ascension).as_str(),
+                                          &mut rate_of_right_ascension, -2e-6, 0.0, true);
+                        
+                        gui_slider_helper(&mut s, add(parameters_layout["rate_of_inclination_slider"], sidebar_scroll),
+                                          "Rate of inclination [rad/s]",
+                                          format!("{:+e} rad/s", rate_of_inclination).as_str(),
+                                          &mut rate_of_inclination, -1.0, 1.0, true);
+                    }
                 });
             }
 
