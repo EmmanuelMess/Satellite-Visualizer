@@ -512,12 +512,16 @@ fn main() {
             if update_clipboard {
                 let clipboard_result =
                     Clipboard::new().and_then(|mut clipboard| {
-                        clipboard.set_text(satellite.to_rinex())
+                        let rinex = satellite.to_rinex();
+                        println!("{}", rinex);
+                        clipboard.set_text(rinex)
                     });
 
                 if let Err(error) = clipboard_result {
                     println!("Error copying to clipboard: {}", error);
                 }
+                
+                update_clipboard = false;
             }
         }
     }
