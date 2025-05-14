@@ -237,7 +237,7 @@ G00 {year:04} {month:02} {day:02} {hour:02} {minute:02} {second:02}{}{}{}
         // eccentric_anomaly_rate
         let e_dot_k = n / (1.0 - e * e_k.cos());
         // true_anomaly_rate
-        let v_dot_k = e_dot_k * ((1.0 - e.powi(2)).sqrt() / (1.0 - e * e_dot_k.cos()));
+        let v_dot_k = e_dot_k * ((1.0 - e.powi(2)).sqrt() / (1.0 - e * e_k.cos()));
 
         // corrected_inclination_angle_rate
         let di_k_dt = idot + 2.0 * v_dot_k * (c_is * phi_k_2.cos() - c_ic * phi_k_2.sin());
@@ -259,16 +259,16 @@ G00 {year:04} {month:02} {day:02} {hour:02} {minute:02} {second:02}{}{}{}
         let x_velocity = 
             - plane_x * omega_dot_k * omega_k.sin()
             + x_dot_prime * omega_k.cos()
-            - y_dot_prime * omega_k.sin() * delta_i_k.cos()
-            - plane_y * (omega_dot_k * omega_dot_k.cos() * delta_i_k.cos()
-                        - di_k_dt * omega_dot_k.sin() * delta_i_k.sin());
+            - y_dot_prime * omega_k.sin() * i_k.cos()
+            - plane_y * (omega_dot_k * omega_k.cos() * i_k.cos()
+                        - di_k_dt * omega_k.sin() * i_k.sin());
         let y_velocity = 
             plane_x * omega_dot_k * omega_k.cos()
             + x_dot_prime * omega_k.sin()
-            + y_dot_prime * omega_k.cos() * delta_i_k.cos()
-            - plane_y * (omega_dot_k * omega_dot_k.sin() * delta_i_k.cos()
-                        + di_k_dt * omega_dot_k.cos() * delta_i_k.sin());
-        let z_velocity = y_dot_prime * delta_i_k.sin() + plane_y * di_k_dt * delta_i_k.cos();
+            + y_dot_prime * omega_k.cos() * i_k.cos()
+            - plane_y * (omega_dot_k * omega_k.sin() * i_k.cos()
+                        + di_k_dt * omega_k.cos() * i_k.sin());
+        let z_velocity = y_dot_prime * i_k.sin() + plane_y * di_k_dt * i_k.cos();
 
         let velocity = (x_velocity, y_velocity, z_velocity);
 
