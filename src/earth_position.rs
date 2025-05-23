@@ -105,4 +105,15 @@ mod tests {
         assert_float_absolute_eq!(positionLlh.longitude, f64::to_radians(-64.4700483), f64::to_radians(1e-6));
         assert_float_absolute_eq!(positionLlh.height, 747.07, 0.1);
     }
+
+    #[test]
+    fn test_rosario() {
+        let positionLlh = LlhPosition::on_surface(f64::to_radians(-32.9575), f64::to_radians(-60.639444444444));
+        let positionEcef: EcefPosition = positionLlh.into();
+
+        // See https://gssc.esa.int/navipedia/index.php?title=Ellipsoidal_and_Cartesian_Coordinates_Conversion
+        assert_float_absolute_eq!(positionEcef.x, 2626577.62, 0.1);
+        assert_float_absolute_eq!(positionEcef.y, -4668936.95, 0.1);
+        assert_float_absolute_eq!(positionEcef.z, -3450004.68, 0.1);
+    }
 }

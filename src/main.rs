@@ -135,8 +135,8 @@ fn main() {
     let mut rate_of_right_ascension: f32 = 0.0;
     let mut rate_of_inclination: f32 = 0.0;
 
-    let mut reference_point_latitude_deg: f32 = -31.5284356;
-    let mut reference_point_longitude_deg: f32 = -64.4700483;
+    let mut reference_point_latitude_deg: f32 = -32.9575;
+    let mut reference_point_longitude_deg: f32 = -60.639444444444;
 
     let sidebar_layout = HashMap::from([
         ("sidebar", grid_rectangle(sidebar_box, 0.0, 0.0, grid_value(width.as_f32() - sidebar_box.x), grid_value(height.as_f32()))),
