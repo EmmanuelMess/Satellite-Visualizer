@@ -2,6 +2,15 @@
 
 <img src="./images/screenshot.png"/>
 
+## Building 
+
+Dependencies:
+- [rust](https://www.rust-lang.org/tools/install)
+
+```bash
+cargo build
+```
+
 ## License
 
 ```text
