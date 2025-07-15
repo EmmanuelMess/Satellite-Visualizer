@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-use std::num::ParseFloatError;
 use hifitime::{Duration, Epoch};
 use hifitime::TimeScale::GPST;
 use regex::Regex;
@@ -111,7 +109,7 @@ impl Satellite {
         }
     }
     
-    pub(crate) fn to_rinex(self) -> String {
+    pub(crate) fn to_rinex(&self) -> String {
         let (year, month, day, hour, minute, second, _) = self.epoch.to_gregorian_tai();
         let seconds_of_week = get_gpst_seconds_of_week(self.epoch);
         let week = get_gpst_week(self.epoch);
@@ -275,7 +273,7 @@ G00 {year:04} {month:02} {day:02} {hour:02} {minute:02} {second:02}{}{}{}
         (position, velocity)
     }
 
-    pub(crate) fn get_orbit(&self, point_number: u64) -> Vec<(f64, f64, f64)>  {
+    pub(crate) fn get_orbit(&self, point_number: i32) -> Vec<(f64, f64, f64)>  {
         let time_start = (-Duration::from_hours(2.0)).to_seconds().floor() as i64;
         let time_end = (Duration::from_hours(2.0)).to_seconds().floor() as i64;
 
